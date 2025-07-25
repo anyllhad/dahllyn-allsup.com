@@ -1,0 +1,284 @@
+body {
+  background-color: #f3f4f6;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+nav {
+  background-color: #03071E;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  position: fixed;
+  width: 100%;
+  z-index: 10;
+}
+
+nav > div {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav > div > a {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+}
+
+nav ul {
+  display: flex;
+  list-style-type: none;
+  font-size: 1.5rem;
+  
+}
+
+nav ul li + li {
+  margin-left: 1.5rem;
+}
+
+nav ul li a {
+  color: #4b5563;
+  text-decoration: none;
+}
+
+nav ul li a:hover {
+  color: #3b82f6;
+}
+
+#home {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: linear-gradient(to right, #3b82f6, #9333ea);
+  color: white;
+}
+
+#home > div {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  text-align: center;
+}
+
+#home h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+#home p {
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+#home a {
+  /* background-color: white; */
+  color: #2563eb;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+#home a:hover {
+  background-color: #e5e7eb;
+}
+
+#about {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  background-color: white;
+}
+
+#about > div,
+#portfolio > div,
+#contact > div {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+#about > div > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  #about > div > div {
+    flex-direction: row;
+  }
+}
+
+#about img {
+  width: 17rem;
+  height: 17rem;
+  border-radius: 9999px;
+  margin-bottom: 1.5rem;
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  #about img {
+    margin-bottom: 0;
+    margin-right: 2rem;
+  }
+}
+
+#about > div > div > div > p {
+  color: #4b5563;
+}
+
+#about > div > div > div > p:first-child {
+  margin-bottom: 1rem;
+}
+
+#portfolio {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  background-color: #f3f4f6;
+}
+
+#portfolio > div > div {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  #portfolio > div > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+#portfolio > div > div > div {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+}
+
+#portfolio > div > div > div > img {
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+}
+
+#portfolio > div > div > div:nth-child(1) > img,
+#portfolio > div > div > div:nth-child(2) > img {
+  margin-top: 1.5rem;
+}
+
+#portfolio > div > div > div > div {
+  padding: 1.5rem;
+}
+
+#portfolio > div > div > div > div > h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+#portfolio > div > div > div > div > p {
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+#portfolio > div > div > div > div > a {
+  color: #3b82f6;
+}
+
+#portfolio > div > div > div > div > a:hover {
+  text-decoration: underline;
+}
+
+#contact {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  background-color: white;
+}
+
+#contact form {
+  max-width: 32rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#contact form > div {
+  margin-bottom: 1rem;
+}
+
+#contact label {
+  display: block;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+#contact input,
+#contact textarea {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #d1d5db;
+  border-radius: 0.5rem;
+}
+
+#contact input:focus,
+#contact textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+#contact button {
+  background-color: #3b82f6;
+  color: white;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+#contact button:hover {
+  background-color: #2563eb;
+}
+
+footer {
+  background-color: #1f2937;
+  color: white;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+footer > div {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  text-align: center;
+}

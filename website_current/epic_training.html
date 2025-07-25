@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic EHR Training Module</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-overlay,
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            display: none;
+        }
+
+        .modal-overlay.active,
+        .tutorial-overlay.active {
+            display: block;
+        }
+
+        .content-disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .highlight {
+            border: 2px solid #facc15 !important;
+            /* Tailwind yellow-500 */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans pt-16">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md fixed w-full top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gray-800">New Patient Training</a>
+            <ul class="flex space-x-6">
+                <li><a href="/index.html" class="text-gray-600 hover:text-blue-500">Home</a></li>
+                <li><a href="#about" class="text-gray-600 hover:text-blue-500">About</a></li>
+                <li><a href="#portfolio" class="text-gray-600 hover:text-blue-500">Portfolio</a></li>
+                <li><a href="#contact" class="text-gray-600 hover:text-blue-500">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HIPAA Acknowledgement Modal -->
+    <div id="hipaaModal" class="modal-overlay">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto mt-20">
+            <h2 class="text-2xl font-semibold mb-4">HIPAA Acknowledgement</h2>
+            <p class="mb-4">I acknowledge my responsibility to safeguard Protected Health Information (PHI) in
+                accordance with HIPAA privacy and security regulations, ensuring the confidentiality and integrity of
+                patient data. Additionally, I understand that any data or information entered into this system will not
+                be retained after I exit or refresh the window.</p>
+            <form id="hipaaForm">
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="hipaaAgree" class="h-5 w-5 text-blue-600" required>
+                        <span class="ml-2 text-sm text-gray-700">I agree to comply with HIPAA regulations.</span>
+                    </label>
+                </div>
+                <button type="submit" id="hipaaAcknowledgeBtn"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" disabled>Acknowledge</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorialOverlay" class="tutorial-overlay hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto mt-20">
+            <h2 class="text-2xl font-semibold mb-4">Training Tutorial</h2>
+            <p id="tutorialMessage" class="mb-4">Step 1: Acknowledge HIPAA to begin.</p>
+            <div class="flex space-x-4">
+                <button id="tutorialNext"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Next</button>
+                <button id="tutorialSkip" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Skip
+                    Tutorial</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainContent" class="container mx-auto px-4 py-6">
+        <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">Epic EHR Training Module</h1>
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Sidebar: Navigation and Checklist -->
+            <div class="w-full md:w-1/4 flex flex-col gap-4">
+                <!-- Navigation Container -->
+                <div class="bg-white rounded-lg shadow p-4 mb-4">
+                    <h2 class="text-xl font-semibold mb-4">Navigation</h2>
+                    <ul class="space-y-2">
+                        <li>
+                            <button id="searchPatientBtn"
+                                class="w-full text-left p-2 hover:bg-blue-100 rounded tooltip">
+                                Search Patient
+                                <span class="tooltiptext">Click to search for a patient by name or MRN.</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button id="patientChartBtn" class="w-full text-left p-2 hover:bg-blue-100 rounded tooltip">
+                                Patient Chart
+                                <span class="tooltiptext">Click to view patient details.</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button id="createPatientBtn"
+                                class="w-full text-left p-2 hover:bg-blue-100 rounded tooltip">
+                                Create New Patient
+                                <span class="tooltiptext">Click to create a new patient record.</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button id="quizBtn" class="w-full text-left p-2 hover:bg-blue-100 rounded tooltip">
+                                Take Quiz
+                                <span class="tooltiptext">Click to complete the training quiz.</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Checklist Container -->
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h2 class="text-xl font-semibold mb-4">Training Checklist</h2>
+                    <ul class="space-y-2">
+                        <li>
+                            <input type="checkbox" id="task1" disabled>
+                            <label for="task1">Acknowledge HIPAA</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="task6" disabled>
+                            <label for="task6">Search Patient</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="task2" disabled>
+                            <label for="task2">View Patient Chart</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="task3" disabled>
+                            <label for="task3">Add Clinical Note</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="task4" disabled>
+                            <label for="task4">Schedule Appointment</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="task7" disabled>
+                            <label for="task7">Place an Order</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="task5" disabled>
+                            <label for="task5">Create New Patient</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="task8" disabled>
+                            <label for="task8">Complete Training Quiz</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Main Content Area -->
+            <div class="w-full md:w-3/4 bg-white rounded-lg shadow p-6">
+                <div id="contentArea">
+                    <h2 id="dynamicHeading" class="text-2xl font-semibold mb-4">Welcome to Epic Training</h2>
+                    <p id="welcomeMessage">Complete the HIPAA Acknowledgement to begin. Then use the navigation on the
+                        left to complete the training tasks.</p>
+                </div>
+                <!-- Patient Chart Section (Hidden by Default) -->
+                <div id="patientChart" class="hidden">
+                    <div id="patientDetails">
+                        <p><strong>Name:</strong> <span id="patientName">Jeremiah Johnson</span></p>
+                        <p><strong>MRN:</strong> <span id="patientMRN">123456789</span></p>
+                        <p><strong>DOB:</strong> <span id="patientDOB">01/15/1970</span></p>
+                        <p><strong>Allergies:</strong> <span id="patientAllergies">Penicillin</span></p>
+                        <p><strong>Diagnoses:</strong> <span id="patientDiagnoses">Hypertension, Type 2 Diabetes</span>
+                        </p>
+                        <p><strong>Medications:</strong> <span id="patientMedications">Lisinopril 10mg, Metformin
+                                500mg</span></p>
+                        <!-- Moved Buttons to Bottom -->
+                        <div class="flex space-x-4 mt-4">
+                            <button id="addNoteBtn"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 tooltip">
+                                Add Note
+                                <span class="tooltiptext">Click to add a clinical note for this patient.</span>
+                            </button>
+                            <button id="schedulingBtn"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 tooltip">
+                                Scheduling
+                                <span class="tooltiptext">Click to view or add appointments for this patient.</span>
+                            </button>
+                            <button id="placeOrderBtn"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 tooltip">
+                                Place Order
+                                <span class="tooltiptext">Click to place a lab, imaging, or medication order.</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Search Patient Form (Hidden by Default) -->
+                    <div id="searchPatientForm" class="hidden mt-4">
+                        <form id="searchForm">
+                            <div class="mb-4">
+                                <label for="searchQuery" class="block text-sm font-medium text-gray-700">Name or
+                                    MRN</label>
+                                <input type="text" id="searchQuery" class="mt-1 block w-full p-2 border rounded-md"
+                                    placeholder="e.g., John Doe or 123456789" required>
+                            </div>
+                            <button type="submit"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Search</button>
+                        </form>
+                        <div id="searchResults" class="mt-4"></div>
+                        <div id="searchConfirmation" class="hidden mt-4 text-green-600">Patient found and selected!
+                        </div>
+                        <div class="flex space-x-4 mt-4">
+                            <button id="addNoteBtn"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 tooltip">
+                                Add Note
+                                <span class="tooltiptext">Click to add a clinical note for this patient.</span>
+                            </button>
+                            <button id="schedulingBtn"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 tooltip">
+                                Scheduling
+                                <span class="tooltiptext">Click to view or add appointments for this patient.</span>
+                            </button>
+                            <button id="placeOrderBtn"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 tooltip">
+                                Place Order
+                                <span class="tooltiptext">Click to place a lab, imaging, or medication order.</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Create Patient Form (Hidden by Default) -->
+                    <div id="createPatientForm" class="hidden mt-4">
+                        <form id="patientForm">
+                            <div class="mb-4">
+                                <label for="newPatientName" class="block text-sm font-medium text-gray-700">Name</label>
+                                <input type="text" id="newPatientName" class="mt-1 block w-full p-2 border rounded-md"
+                                    placeholder="e.g., Jane Smith" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="newPatientMRN" class="block text-sm font-medium text-gray-700">MRN</label>
+                                <input type="text" id="newPatientMRN" class="mt-1 block w-full p-2 border rounded-md"
+                                    placeholder="e.g., 987654321" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="newPatientDOB" class="block text-sm font-medium text-gray-700">DOB</label>
+                                <input type="date" id="newPatientDOB" class="mt-1 block w-full p-2 border rounded-md"
+                                    required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="newPatientAllergies"
+                                    class="block text-sm font-medium text-gray-700">Allergies</label>
+                                <input type="text" id="newPatientAllergies"
+                                    class="mt-1 block w-full p-2 border rounded-md" placeholder="e.g., None">
+                            </div>
+                            <div class="mb-4">
+                                <label for="newPatientDiagnoses"
+                                    class="block text-sm font-medium text-gray-700">Diagnoses</label>
+                                <input type="text" id="newPatientDiagnoses"
+                                    class="mt-1 block w-full p-2 border rounded-md" placeholder="e.g., Asthma">
+                            </div>
+                            <div class="mb-4">
+                                <label for="newPatientMedications"
+                                    class="block text-sm font-medium text-gray-700">Medications</label>
+                                <input type="text" id="newPatientMedications"
+                                    class="mt-1 block w-full p-2 border rounded-md" placeholder="e.g., Albuterol">
+                            </div>
+                            <button type="submit"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Patient</button>
+                        </form>
+                        <div id="patientConfirmation" class="hidden mt-4 text-green-600">Patient created successfully!
+                        </div>
+                    </div>
+                    <!-- Add Note Form (Hidden by Default) -->
+                    <div id="addNote" class="hidden mt-4">
+                        <form id="noteForm">
+                            <label for="noteText" class="block text-sm font-medium text-gray-700">Clinical Note</label>
+                            <textarea id="noteText" class="mt-1 block w-full p-2 border rounded-md" rows="4"
+                                placeholder="Enter your clinical note here..."></textarea>
+                            <button type="submit"
+                                class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit
+                                Note</button>
+                        </form>
+                        <div id="noteConfirmation" class="hidden mt-4 text-green-600">Note submitted successfully!</div>
+                    </div>
+                    <!-- Scheduling Form (Hidden by Default) -->
+                    <div id="scheduling" class="hidden mt-4">
+                        <h4 class="text-md font-medium mb-2">Current Appointments</h4>
+                        <ul id="appointmentList" class="mb-4 space-y-2">
+                            <li>2025-05-15, 10:00 AM - Follow-up (Hypertension)</li>
+                            <li>2025-06-10, 2:00 PM - Diabetes Check</li>
+                        </ul>
+                        <h4 class="text-md font-medium mb-2">Schedule New Appointment</h4>
+                        <form id="appointmentForm">
+                            <div class="mb-4">
+                                <label for="appointmentDate"
+                                    class="block text-sm font-medium text-gray-700">Date</label>
+                                <input type="date" id="appointmentDate" class="mt-1 block w-full p-2 border rounded-md"
+                                    required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="appointmentTime"
+                                    class="block text-sm font-medium text-gray-700">Time</label>
+                                <input type="time" id="appointmentTime" class="mt-1 block w-full p-2 border rounded-md"
+                                    required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="appointmentReason"
+                                    class="block text-sm font-medium text-gray-700">Reason</label>
+                                <input type="text" id="appointmentReason"
+                                    class="mt-1 block w-full p-2 border rounded-md" placeholder="e.g., Annual Physical"
+                                    required>
+                            </div>
+                            <button type="submit"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Schedule
+                                Appointment</button>
+                        </form>
+                        <div id="appointmentConfirmation" class="hidden mt-4 text-green-600">Appointment scheduled
+                            successfully!</div>
+                    </div>
+                    <!-- Place Order Form (Hidden by Default) -->
+                    <div id="placeOrderForm" class="hidden mt-4">
+                        <form id="orderForm">
+                            <div class="mb-4">
+                                <label for="orderType" class="block text-sm font-medium text-gray-700">Order
+                                    Type</label>
+                                <select id="orderType" class="mt-1 block w-full p-2 border rounded-md" required>
+                                    <option value="Lab">Lab</option>
+                                    <option value="Imaging">Imaging</option>
+                                    <option value="Medication">Medication</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label for="orderDetails"
+                                    class="block text-sm font-medium text-gray-700">Details</label>
+                                <input type="text" id="orderDetails" class="mt-1 block w-full p-2 border rounded-md"
+                                    placeholder="e.g., CBC" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" id="orderStat" class="h-5 w-5 text-blue-600">
+                                    <span class="ml-2 text-sm text-gray-700">Stat</span>
+                                </label>
+                            </div>
+                            <button type="submit"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Place Order</button>
+                        </form>
+                        <div id="orderConfirmation" class="hidden mt-4 text-green-600">Order placed successfully!</div>
+                    </div>
+                </div>
+                <!-- Quiz Section (Hidden by Default) -->
+                <div id="quizSection" class="hidden">
+                    <h2 class="text-2xl font-semibold mb-4">Training Quiz</h2>
+                    <form id="quizForm">
+                        <div class="mb-4">
+                            <p class="font-medium">1. What must you do before accessing patient data?</p>
+                            <label><input type="radio" name="q1" value="a" required> Acknowledge HIPAA</label><br>
+                            <label><input type="radio" name="q1" value="b"> Log out</label><br>
+                            <label><input type="radio" name="q1" value="c"> Print chart</label>
+                        </div>
+                        <div class="mb-4">
+                            <p class="font-medium">2. Where can you add a clinical note?</p>
+                            <label><input type="radio" name="q2" value="a" required> Patient Chart</label><br>
+                            <label><input type="radio" name="q2" value="b"> Search Patient</label><br>
+                            <label><input type="radio" name="q2" value="c"> Create Patient</label>
+                        </div>
+                        <div class="mb-4">
+                            <p class="font-medium">3. What field is required to create a patient?</p>
+                            <label><input type="radio" name="q3" value="a" required> MRN</label><br>
+                            <label><input type="radio" name="q3" value="b"> Allergies</label><br>
+                            <label><input type="radio" name="q3" value="c"> Medications</label>
+                        </div>
+                        <button type="submit" class="bg-blue-6
+
+00 text-white px-4 py-2 rounded hover:bg-blue-700">Submit
+                            Quiz</button>
+                    </form>
+                    <div id="quizFeedback" class="hidden mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const hipaaModal = document.getElementById('hipaaModal');
+        const hipaaForm = document.getElementById('hipaaForm');
+        const hipaaAgree = document.getElementById('hipaaAgree');
+        const hipaaAcknowledgeBtn = document.getElementById('hipaaAcknowledgeBtn');
+        const tutorialOverlay = document.getElementById('tutorialOverlay');
+        const tutorialMessage = document.getElementById('tutorialMessage');
+        const tutorialNext = document.getElementById('tutorialNext');
+        const tutorialSkip = document.getElementById('tutorialSkip');
+        const mainContent = document.getElementById('mainContent');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const patientChartBtn = document.getElementById('patientChartBtn');
+        const searchPatientBtn = document.getElementById('searchPatientBtn');
+        const createPatientBtn = document.getElementById('createPatientBtn');
+        const quizBtn = document.getElementById('quizBtn');
+        const addNoteBtn = document.getElementById('addNoteBtn');
+        const schedulingBtn = document.getElementById('schedulingBtn');
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+        const contentArea = document.getElementById('contentArea');
+        const patientChart = document.getElementById('patientChart');
+        const quizSection = document.getElementById('quizSection');
+        const patientDetails = document.getElementById('patientDetails');
+        const searchPatientForm = document.getElementById('searchPatientForm');
+        const searchForm = document.getElementById('searchForm');
+        const searchQuery = document.getElementById('searchQuery');
+        const searchResults = document.getElementById('searchResults');
+        const searchConfirmation = document.getElementById('searchConfirmation');
+        const createPatientForm = document.getElementById('createPatientForm');
+        const patientForm = document.getElementById('patientForm');
+        const patientConfirmation = document.getElementById('patientConfirmation');
+        const addNote = document.getElementById('addNote');
+        const scheduling = document.getElementById('scheduling');
+        const placeOrderForm = document.getElementById('placeOrderForm');
+        const noteForm = document.getElementById('noteForm');
+        const noteText = document.getElementById('noteText');
+        const noteConfirmation = document.getElementById('noteConfirmation');
+        const appointmentForm = document.getElementById('appointmentForm');
+        const appointmentList = document.getElementById('appointmentList');
+        const appointmentDate = document.getElementById('appointmentDate');
+        const appointmentTime = document.getElementById('appointmentTime');
+        const appointmentReason = document.getElementById('appointmentReason');
+        const appointmentConfirmation = document.getElementById('appointmentConfirmation');
+        const orderForm = document.getElementById('orderForm');
+        const orderConfirmation = document.getElementById('orderConfirmation');
+        const quizForm = document.getElementById('quizForm');
+        const quizFeedback = document.getElementById('quizFeedback');
+        const task1 = document.getElementById('task1');
+        const task2 = document.getElementById('task2');
+        const task3 = document.getElementById('task3');
+        const task4 = document.getElementById('task4');
+        const task5 = document.getElementById('task5');
+        const task6 = document.getElementById('task6');
+        const task7 = document.getElementById('task7');
+        const task8 = document.getElementById('task8');
+
+        // Patient data (client-side storage, resets on refresh)
+        let patients = [
+            {
+                name: 'Jeremiah Johnson',
+                mrn: '123456789',
+                dob: '01/15/1970',
+                allergies: 'Penicillin',
+                diagnoses: 'Hypertension, Type 2 Diabetes',
+                medications: 'Lisinopril 10mg, Metformin 500mg'
+            }
+        ];
+        let currentPatientIndex = 0;
+
+        // State
+        let hasAcknowledgedHIPAA = false;
+        let tutorialStep = 0;
+
+        // Tutorial steps (aligned with new checklist order)
+        const tutorialSteps = [
+            { message: 'Step 1: Acknowledge HIPAA to begin.', highlight: null },
+            { message: 'Step 2: Click Search Patient to find a record.', highlight: 'searchPatientBtn' },
+            { message: 'Step 3: Click Patient Chart to view details.', highlight: 'patientChartBtn' },
+            { message: 'Step 4: Add a clinical note.', highlight: 'addNoteBtn' },
+            { message: 'Step 5: Schedule an appointment.', highlight: 'schedulingBtn' },
+            { message: 'Step 6: Place an order.', highlight: 'placeOrderBtn' },
+            { message: 'Step 7: Create a new patient.', highlight: 'createPatientBtn' },
+            { message: 'Step 8: Take the quiz to complete training.', highlight: 'quizBtn' }
+        ];
+
+        // Clear cache on refresh
+        window.onbeforeunload = () => {
+            localStorage.clear();
+            sessionStorage.clear();
+        };
+
+        // Update the dynamic heading based on the current section
+        function updateDynamicHeading(text) {
+            const dynamicHeading = document.getElementById('dynamicHeading');
+            dynamicHeading.textContent = text;
+        }
+
+        // Show/hide HIPAA modal
+        function toggleHIPAAModal(show) {
+            if (show) {
+                hipaaModal.classList.add('active');
+                mainContent.classList.add('content-disabled');
+                welcomeMessage.textContent = 'Complete the HIPAA Acknowledgement to begin. Then use the navigation on the left to complete the training tasks.';
+                updateDynamicHeading('HIPAA Acknowledgement');
+            } else {
+                hipaaModal.classList.remove('active');
+                mainContent.classList.remove('content-disabled');
+                welcomeMessage.textContent = 'Use the navigation on the left to complete the training tasks. Hover over buttons for instructions.';
+                updateDynamicHeading('Welcome to Epic Training');
+                showTutorialStep(0); // Start tutorial
+            }
+        }
+
+        // Show/hide tutorial overlay
+        function toggleTutorial(show) {
+            if (show) {
+                tutorialOverlay.classList.add('active');
+                mainContent.classList.add('content-disabled');
+            } else {
+                tutorialOverlay.classList.remove('active');
+                mainContent.classList.remove('content-disabled');
+                clearHighlight();
+            }
+        }
+
+        // Show tutorial step
+        function showTutorialStep(step) {
+            if (step >= tutorialSteps.length) {
+                toggleTutorial(false);
+                return;
+            }
+            tutorialStep = step;
+            tutorialMessage.textContent = tutorialSteps[step].message;
+            clearHighlight();
+            if (tutorialSteps[step].highlight) {
+                const element = document.getElementById(tutorialSteps[step].highlight);
+                if (element) element.classList.add('highlight');
+            }
+            toggleTutorial(true);
+        }
+
+        // Clear highlight
+        function clearHighlight() {
+            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+        }
+
+        // Show specific content section
+        function showContentSection(section) {
+            contentArea.classList.add('hidden');
+            patientChart.classList.add('hidden');
+            quizSection.classList.add('hidden');
+            section.classList.remove('hidden');
+
+            // Update heading based on the section
+            if (section === contentArea) {
+                updateDynamicHeading('Welcome to Epic Training');
+            } else if (section === patientChart) {
+                updateDynamicHeading('Patient Chart');
+            } else if (section === quizSection) {
+                updateDynamicHeading('Training Quiz');
+            }
+        }
+
+        // Show specific section within Patient Chart
+        function showPatientChartSection(section) {
+            patientDetails.classList.add('hidden');
+            searchPatientForm.classList.add('hidden');
+            createPatientForm.classList.add('hidden');
+            addNote.classList.add('hidden');
+            scheduling.classList.add('hidden');
+            placeOrderForm.classList.add('hidden');
+            section.classList.remove('hidden');
+
+            // Update heading based on the subsection
+            if (section === patientDetails) {
+                updateDynamicHeading('Patient Chart');
+            } else if (section === searchPatientForm) {
+                updateDynamicHeading('Search Patient');
+            } else if (section === createPatientForm) {
+                updateDynamicHeading('Create New Patient');
+            } else if (section === addNote) {
+                updateDynamicHeading('Add Clinical Note');
+            } else if (section === scheduling) {
+                updateDynamicHeading('Scheduling');
+            } else if (section === placeOrderForm) {
+                updateDynamicHeading('Place an Order');
+            }
+        }
+
+        // Update patient details
+        function updatePatientDetails() {
+            const patient = patients[currentPatientIndex];
+            document.getElementById('patientName').textContent = patient.name;
+            document.getElementById('patientMRN').textContent = patient.mrn;
+            document.getElementById('patientDOB').textContent = patient.dob;
+            document.getElementById('patientAllergies').textContent = patient.allergies || 'None';
+            document.getElementById('patientDiagnoses').textContent = patient.diagnoses || 'None';
+            document.getElementById('patientMedications').textContent = patient.medications || 'None';
+        }
+
+        // Event Listeners
+        hipaaAgree.addEventListener('change', () => {
+            hipaaAcknowledgeBtn.disabled = !hipaaAgree.checked;
+        });
+
+        hipaaForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (hipaaAgree.checked) {
+                hasAcknowledgedHIPAA = true;
+                toggleHIPAAModal(false);
+                task1.checked = true;
+                showTutorialStep(1); // Next step after HIPAA
+            }
+        });
+
+        tutorialNext.addEventListener('click', () => {
+            showTutorialStep(tutorialStep + 1);
+        });
+
+        tutorialSkip.addEventListener('click', () => {
+            toggleTutorial(false);
+        });
+
+        patientChartBtn.addEventListener('click', () => {
+            console.log('Patient Chart clicked, hasAcknowledgedHIPAA:', hasAcknowledgedHIPAA);
+            if (!hasAcknowledgedHIPAA) return;
+            showContentSection(patientChart);
+            showPatientChartSection(patientDetails);
+            updatePatientDetails();
+            task2.checked = true;
+            if (tutorialStep === 2) showTutorialStep(3);
+        });
+
+        searchPatientBtn.addEventListener('click', () => {
+            console.log('Search Patient clicked, hasAcknowledgedHIPAA:', hasAcknowledgedHIPAA);
+            if (!hasAcknowledgedHIPAA) {
+                console.log('HIPAA not acknowledged, action blocked');
+                return;
+            }
+            showContentSection(patientChart);
+            showPatientChartSection(searchPatientForm);
+            searchResults.innerHTML = '';
+            console.log('Search Patient form displayed');
+            if (tutorialStep === 1) showTutorialStep(2);
+        });
+
+        createPatientBtn.addEventListener('click', () => {
+            console.log('Create New Patient clicked, hasAcknowledgedHIPAA:', hasAcknowledgedHIPAA);
+            if (!hasAcknowledgedHIPAA) {
+                console.log('HIPAA not acknowledged, action blocked');
+                return;
+            }
+            showContentSection(patientChart);
+            showPatientChartSection(createPatientForm);
+            console.log('Create Patient form displayed');
+            if (tutorialStep === 6) showTutorialStep(7);
+        });
+
+        quizBtn.addEventListener('click', () => {
+            console.log('Quiz clicked, hasAcknowledgedHIPAA:', hasAcknowledgedHIPAA);
+            if (!hasAcknowledgedHIPAA) return;
+            showContentSection(quizSection);
+            quizFeedback.classList.add('hidden');
+            if (tutorialStep === 7) showTutorialStep(8);
+        });
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = searchQuery.value.trim().toLowerCase();
+            console.log('Search query:', query);
+            const matches = patients.filter(p =>
+                p.name.toLowerCase().includes(query) || p.mrn.includes(query)
+            );
+            searchResults.innerHTML = '';
+            if (matches.length > 0) {
+                matches.forEach((patient, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                    div.textContent = `${patient.name} (MRN: ${patient.mrn})`;
+                    div.addEventListener('click', () => {
+                        currentPatientIndex = patients.indexOf(patient);
+                        showPatientChartSection(patientDetails);
+                        updatePatientDetails();
+                        searchConfirmation.classList.remove('hidden');
+                        task6.checked = true;
+                        console.log('Patient selected, task6 checked');
+                        setTimeout(() => {
+                            searchConfirmation.classList.add('hidden');
+                        }, 3000);
+                    });
+                    searchResults.appendChild(div);
+                });
+            } else {
+                searchResults.innerHTML = '<p class="text-red-600">No patients found.</p>';
+            }
+        });
+
+        patientForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newPatient = {
+                name: document.getElementById('newPatientName').value.trim(),
+                mrn: document.getElementById('newPatientMRN').value.trim(),
+                dob: document.getElementById('newPatientDOB').value,
+                allergies: document.getElementById('newPatientAllergies').value.trim() || 'None',
+                diagnoses: document.getElementById('newPatientDiagnoses').value.trim() || 'None',
+                medications: document.getElementById('newPatientMedications').value.trim() || 'None'
+            };
+            if (newPatient.name && newPatient.mrn && newPatient.dob) {
+                patients.push(newPatient);
+                currentPatientIndex = patients.length - 1;
+                showPatientChartSection(patientDetails);
+                updatePatientDetails();
+                patientConfirmation.classList.remove('hidden');
+                task5.checked = true;
+                patientForm.reset();
+                setTimeout(() => {
+                    patientConfirmation.classList.add('hidden');
+                }, 3000);
+                if (tutorialStep === 6) showTutorialStep(7);
+            }
+        });
+
+        addNoteBtn.addEventListener('click', () => {
+            console.log('Add Note clicked');
+            if (!hasAcknowledgedHIPAA) return;
+            showPatientChartSection(addNote);
+            if (tutorialStep === 3) showTutorialStep(4);
+        });
+
+        noteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (noteText.value.trim() !== '') {
+                noteConfirmation.classList.remove('hidden');
+                task3.checked = true;
+                noteText.value = '';
+                setTimeout(() => {
+                    noteConfirmation.classList.add('hidden');
+                }, 3000);
+                if (tutorialStep === 4) showTutorialStep(5);
+            }
+        });
+
+        schedulingBtn.addEventListener('click', () => {
+            console.log('Scheduling clicked');
+            if (!hasAcknowledgedHIPAA) return;
+            showPatientChartSection(scheduling);
+            if (tutorialStep === 4) showTutorialStep(5);
+        });
+
+        appointmentForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (appointmentDate.value && appointmentTime.value && appointmentReason.value.trim() !== '') {
+                const newAppointment = `${appointmentDate.value}, ${appointmentTime.value} - ${appointmentReason.value}`;
+                const li = document.createElement('li');
+                li.textContent = newAppointment;
+                appointmentList.appendChild(li);
+                appointmentConfirmation.classList.remove('hidden');
+                task4.checked = true;
+                appointmentForm.reset();
+                setTimeout(() => {
+                    appointmentConfirmation.classList.add('hidden');
+                }, 3000);
+                if (tutorialStep === 5) showTutorialStep(6);
+            }
+        });
+
+        placeOrderBtn.addEventListener('click', () => {
+            console.log('Place Order clicked');
+            if (!hasAcknowledgedHIPAA) return;
+            showPatientChartSection(placeOrderForm);
+            if (tutorialStep === 5) showTutorialStep(6);
+        });
+
+        orderForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            orderConfirmation.classList.remove('hidden');
+            task7.checked = true;
+            orderForm.reset();
+            setTimeout(() => {
+                orderConfirmation.classList.add('hidden');
+            }, 3000);
+            if (tutorialStep === 6) showTutorialStep(7);
+        });
+
+        quizForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const answers = {
+                q1: document.querySelector('input[name="q1"]:checked').value,
+                q2: document.querySelector('input[name="q2"]:checked').value,
+                q3: document.querySelector('input[name="q3"]:checked').value
+            };
+            let score = 0;
+            if (answers.q1 === 'a') score++;
+            if (answers.q2 === 'a') score++;
+            if (answers.q3 === 'a') score++;
+            quizFeedback.classList.remove('hidden');
+            quizFeedback.innerHTML = `<p class="text-green-600">Score: ${score}/3</p>`;
+            if (score >= 2) {
+                task8.checked = true;
+                if (tutorialStep === 7) toggleTutorial(false);
+            }
+            quizForm.reset();
+        });
+
+        // Show HIPAA modal on page load
+        toggleHIPAAModal(true);
+
+        // Debug: Verify button elements
+        console.log('searchPatientBtn:', searchPatientBtn);
+        console.log('createPatientBtn:', createPatientBtn);
+    </script>
+</body>
+
+</html>

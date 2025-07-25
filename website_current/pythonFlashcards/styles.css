@@ -1,0 +1,131 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+}
+
+.flashcard {
+    background-color: #e3f2fd;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+#question {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    text-align: center; /* Center the question text */
+}
+
+#answer-input {
+    width: 80%;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#submit-btn, #quit-btn {
+    border: 2px solid #333; /* Add border to Submit and Quit buttons */
+}
+
+#quit-btn {
+    background-color: #f44336;
+}
+
+#quit-btn:hover {
+    background-color: #d32f2f;
+}
+
+#save-wrong-btn, #save-scores-btn {
+    background-color: #2196F3;
+    margin: 10px;
+}
+
+#save-wrong-btn:hover, #save-scores-btn:hover {
+    background-color: #1976D2;
+}
+
+#feedback {
+    font-size: 1em;
+    margin: 10px 0;
+}
+
+#score {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+#past-scores, #wrong-answers {
+    margin: 20px 0;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin: 5px 0;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+        padding: 10px;
+    }
+
+    #question {
+        font-size: 1em;
+    }
+
+    #answer-input {
+        width: 90%;
+    }
+
+    button {
+        padding: 8px 16px;
+        font-size: 0.9em;
+    }
+}
